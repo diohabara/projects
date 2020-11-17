@@ -1,0 +1,6 @@
+[book]
+authors = ["diohabara"]
+language = "en"
+multilingual = false
+src = "src"
+title = "advent-calendar2020"
