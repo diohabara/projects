@@ -4,6 +4,7 @@
 
 ```sh
 mkdir new-challenge
+cd new-challenge
 mdbook init
 ```
 
