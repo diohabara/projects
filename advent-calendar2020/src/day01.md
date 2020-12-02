@@ -1,4 +1,4 @@
-# Day1
+# Day01
 
 このアドベントカレンダーでは､RDBMS(Relational DataBase Management System)を作ろうと思います｡
 
@@ -148,7 +148,7 @@ TEST(Hello, HelloBazel) { EXPECT_EQ(greet("Bazel"), "Hello Bazel"); }
 
 実装ではこのような単純なbinary targetとbinary target用のlibraryとテストを書いていきます｡そうすることでCMakeで書くような複雑な依存関係を自分の頭に入れなくても良く､実装の見通しも簡単になります｡C++は思ったより近代的なのだなと感心します｡RustだとCargoだけで済みますが､このような利点も他の言語に触れることが感じられます｡常に先人の知恵に感謝ですね｡
 
-## Day1まとめ
+## Day01まとめ
 
 - RDBMSを自作する
 - [BusTub](https://github.com/cmu-db/bustub/)というお手本がある

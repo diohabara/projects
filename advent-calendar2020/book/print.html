@@ -165,7 +165,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#day1" id="day1">Day1</a></h1>
+                        <h1><a class="header" href="#day01" id="day01">Day01</a></h1>
 <p>このアドベントカレンダーでは､RDBMS(Relational DataBase Management System)を作ろうと思います｡</p>
 <p>実装に使う言語はC++で､ビルドツールとしてBazelを使います｡レポジトリは<a href="github.com/diohabara/simpleDB">こちら</a>です｡12/25までには完成させます｡</p>
 <p>Day1である今日はまずはRDBMSに関係のない開発全般に関する部分について述べます｡次回からはRDBMSに関連する話+実装をしていきます｡</p>
@@ -265,7 +265,7 @@ TEST(Hello, HelloBazel) { EXPECT_EQ(greet(&quot;Bazel&quot;), &quot;Hello Bazel&
 </code></pre>
 <p>非常に簡単ですね？</p>
 <p>実装ではこのような単純なbinary targetとbinary target用のlibraryとテストを書いていきます｡そうすることでCMakeで書くような複雑な依存関係を自分の頭に入れなくても良く､実装の見通しも簡単になります｡C++は思ったより近代的なのだなと感心します｡RustだとCargoだけで済みますが､このような利点も他の言語に触れることが感じられます｡常に先人の知恵に感謝ですね｡</p>
-<h2><a class="header" href="#day1まとめ" id="day1まとめ">Day1まとめ</a></h2>
+<h2><a class="header" href="#day01まとめ" id="day01まとめ">Day01まとめ</a></h2>
 <ul>
 <li>RDBMSを自作する</li>
 <li><a href="https://github.com/cmu-db/bustub/">BusTub</a>というお手本がある</li>
@@ -273,6 +273,61 @@ TEST(Hello, HelloBazel) { EXPECT_EQ(greet(&quot;Bazel&quot;), &quot;Hello Bazel&
 <li>開発方法を速習した</li>
 </ul>
 <h1><a class="header" href="#day02" id="day02">Day02</a></h1>
+<p><a href="./day01.html">前回</a>は開発全般に関する話だったので､今回はRDBMS全般に関する話をします｡そのため､実装はないです｡まあ､ないものは書けないです｡</p>
+<h2><a class="header" href="#why-to-choose-rdbms" id="why-to-choose-rdbms">Why to choose RDBMS</a></h2>
+<p>そもそもなぜRDBMSにしたのかと言うとそもそも自分はデータに興味があり､データを格納し､引き出すというデータベスに興味があったからです｡Relational Database Management Systemには特別な興味があるというわけではないのです､その中で最も有名なものが一番<strong>カンタン</strong>にできそうだったので選択しました｡</p>
+<p>調べると全然簡単そうではないですけどね｡</p>
+<h2><a class="header" href="#how-to-make-rdbms" id="how-to-make-rdbms">How to make RDBMS</a></h2>
+<p>では､どうやってRDBMSを作っていきましょう｡ちょっとその前にRDBMSがどのようなものかをサラっと確認していきます｡</p>
+<h3><a class="header" href="#table" id="table">Table</a></h3>
+<p>以下のように<code>tuple</code>と呼ばれる属性の集合があります｡<code>(&quot;Sato&quot; Taro, 1999, &quot;Japan&quot;)</code>みたいなやつです｡これらはそれぞれ<code>(name, year, country)</code>に対応しています｡このような<code>tuple</code>が集まったものがテーブルというのを作ります｡例えば下は人のテーブルと考えて良いでしょう｡</p>
+<table><thead><tr><th>name</th><th>year</th><th>country</th></tr></thead><tbody>
+<tr><td>Sato Taro</td><td>1999</td><td>Japan</td></tr>
+<tr><td>JC</td><td>1954</td><td>HongKong</td></tr>
+<tr><td>J. J. Sakurai</td><td>1933</td><td>U.S.</td></tr>
+</tbody></table>
+<p>そして､これらのテーブルには<code>tuple</code>を識別するために一意定まるキーが本来付いています｡以下はそのキーを追加したものです｡</p>
+<table><thead><tr><th>id</th><th>name</th><th>year</th><th>country</th></tr></thead><tbody>
+<tr><td>114514</td><td>Sato Taro</td><td>1999</td><td>Japan</td></tr>
+<tr><td>1198964</td><td>JC</td><td>1954</td><td>HongKong</td></tr>
+<tr><td>1975430</td><td>J. J. Sakurai</td><td>1933</td><td>U.S.</td></tr>
+</tbody></table>
+<p>このidを外部のテーブルから参照することができ､これによってテーブル同士を関連させられます｡これが&quot;Relational&quot;の由来です｡</p>
+<h3><a class="header" href="#sql" id="sql">SQL</a></h3>
+<p>では､どうやってテーブルを操作するのでしょう？実は2つの流派(？)があります｡</p>
+<ul>
+<li>Procedural
+DBMSがデータを取り出す手順まで含めて指示する流派(Relational Algebra)</li>
+<li>Non-Procedural
+DBMSに欲しいデータを要求するだけで手順までは指示しない流派(Relational Calculus)</li>
+</ul>
+<p>私の流派(私のDBMSの流派？)はProceduralです｡</p>
+<p>そして､この手順を記述するのに使われているのがSQLです｡&quot;Structured Query Language&quot;の略です｡&quot;Structured&quot;とは要は上のように<code>id</code>などで関連付けられたデータのことを指します｡</p>
+<h3><a class="header" href="#architecture" id="architecture">Architecture</a></h3>
+<p>RDBMSからデータをどのように取ってくるのかを考えると以下のようになります｡ただし､上がデータを取り出す側､下が保存される側｡</p>
+<ul>
+<li>Query Planning</li>
+<li>Operator Execution</li>
+<li>Access Methods</li>
+<li>Buffer Pool Manager</li>
+<li>Disk Manager</li>
+</ul>
+<p>DBMSは基本的には揮発性メモリ(RAM)上のデータを不揮発性メモリ(Storage)に入れるdisk-oriented architectureを採用しており上のような構造になっています｡</p>
+<p>下から紹介すると､&quot;Disk ManagerはそのStorageとの接点となる部分です｡OSがやれよと思うかもしれませんが､複数のスレッドで単一のファイルを扱おうと思った際にOSの機能だけでは不足するのでDBMSでどうにかしたくなったりもするのでDBMSでまとめて上手くやります｡</p>
+<p>&quot;Buffer Pool Manager&quot;はメモリ上でデータを扱うための仕組みです｡</p>
+<p>&quot;Access Methods&quot;は文字通りデータに辿り着く仕組みです｡</p>
+<p>&quot;Operator Execution&quot;はSQLを処理する仕組みです｡</p>
+<p>&quot;Query Planning&quot;はどうデータを取得するかで人間が考える部分ですね｡</p>
+<h2><a class="header" href="#day02まとめ" id="day02まとめ">Day02まとめ</a></h2>
+<ul>
+<li>なぜRDBMSを自作するかを把握した</li>
+<li>RDBMSの概要を把握した</li>
+</ul>
+<h2><a class="header" href="#次回予告" id="次回予告">次回予告</a></h2>
+<ul>
+<li>MUST: RDBMSで使う型を定義する</li>
+<li>SHOULD: Storageに関する実装をする</li>
+</ul>
 
                     </main>
 
@@ -295,6 +350,21 @@ TEST(Hello, HelloBazel) { EXPECT_EQ(greet(&quot;Bazel&quot;), &quot;Hello Bazel&
 
         </div>
 
+        
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         
 
         
