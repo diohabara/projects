@@ -329,6 +329,290 @@ DBMSに欲しいデータを要求するだけで手順までは指示しない�
 <li>SHOULD: Storageに関する実装をする</li>
 </ul>
 <h1><a class="header" href="#day03" id="day03">Day03</a></h1>
+<p>今回は自作RDBMSで使う型について考えていこうと思います｡</p>
+<h2><a class="header" href="#データと型" id="データと型">データと型</a></h2>
+<p>RDBMSが扱っているデータは､当然コンピュータが扱っているので型があります｡</p>
+<p><a href="https://docs.oracle.com/cd/E13214_01/wli/docs92/rdbmseg/datatypes.html#wp1066348">Orableの公式ドキュメント</a>によるとOracleは以下のようなデータを扱っているようです｡</p>
+<table><thead><tr><th>Oracle</th></tr></thead><tbody>
+<tr><td>BLOB: 可変長バイナリ</td></tr>
+<tr><td>CHAR: 固定長の文字</td></tr>
+<tr><td>CLOB: 任意長の巨大文字列(フィールド定義に用いられるらしい)</td></tr>
+<tr><td>DATE: 日付</td></tr>
+<tr><td>DECIMAL: 10進数</td></tr>
+<tr><td>FLOAT: 浮動小数</td></tr>
+<tr><td>INTEGER: 整数</td></tr>
+<tr><td>NUMBER: 数</td></tr>
+<tr><td>NUMERIC: 大きな整数</td></tr>
+<tr><td>RAW: 可変長バイナリ</td></tr>
+<tr><td>REAL: 有理数</td></tr>
+<tr><td>SMALLINT: 小さな整数</td></tr>
+<tr><td>NCLOB: CLOBのUnicode版</td></tr>
+<tr><td>NVARCHAR2: (Unicode)可変長の文字</td></tr>
+<tr><td>NCHAR: (Unicode)固定長の文字</td></tr>
+</tbody></table>
+<p>色々ありますね｡初心者なので量減らしてくれないかなと思っているんですけど､ダメですかそもそもこれを全部自分で実装するのも面倒そうです｡</p>
+<p>今回はこのうち重要そうなものに絞って(本当は全部重要なのだけど自分の実装が簡単にできるように)実装します｡</p>
+<h2><a class="header" href="#rdbms命名" id="rdbms命名">RDBMS命名</a></h2>
+<p>その前に...RDBMSの名前をまだ決めていなかったのでその名の通り&quot;simpleDB&quot;という名前にします｡理由は大したものなので名前を付けるのも恥ずかしいからです｡</p>
+<p>では､また型について考えていきます｡</p>
+<h2><a class="header" href="#simpledb内部の型" id="simpledb内部の型">simpleDB内部の型</a></h2>
+<p>こういうときは参考にすると言っていたBusTubの型の実装を見るのが一番です｡</p>
+<ul>
+<li>https://github.com/cmu-db/bustub/tree/master/src/include/type</li>
+<li>https://github.com/cmu-db/bustub/tree/master/src/type</li>
+</ul>
+<p>これを見た所最悪</p>
+<ul>
+<li>BOOLEAN</li>
+<li>INTEGER</li>
+<li>STRING</li>
+<li>TIMESTAMP</li>
+</ul>
+<p>があれば大丈夫そうだな？と思ったのでこちらを実装していこうと思います｡</p>
+<h2><a class="header" href="#simpledbの構成" id="simpledbの構成">simpleDBの構成</a></h2>
+<p>simpleDBは以下のような構成となっています</p>
+<p><code>Bazel</code>関連のディレクトリや､使い方を確認したために適当に作ったファイルが入っていますが､こんな感じになっています｡</p>
+<pre><code class="language-sh">.
+├── bazel-bin -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out/darwin-fastbuild/bin
+├── bazel-out -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out
+├── bazel-simpleDB -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__
+├── bazel-testlogs -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out/darwin-fastbuild/testlogs
+├── bin
+│  ├── BUILD.bazel
+│  └── format.sh
+├── lib
+│  ├── BUILD.bazel
+│  ├── greet.cc
+│  └── greet.h
+├── README.md
+├── src
+│  ├── BUILD.bazel
+│  ├── includes
+│  │  ├── add.h
+│  │  └── BUILD.bazel
+│  └── main.cc
+├── test
+│  ├── BUILD.bazel
+│  └── test_greet.cc
+└── WORKSPACE
+</code></pre>
+<p><code>src</code>､<code>src/includes</code> 以下に<code>type</code>ディレクトリを作って､そこに必要な型を書いていきます｡</p>
+<pre><code class="language-sh">simpleDB/src on  type 
+❯ mkdir includes/type type
+
+simpleDB/src on  type
+❯ touch includes/type/{type_id.h,type.h,boolean_type.h,integer_type.h,string_type.h,timestamp_type.h}
+
+simpleDB/src on  type
+❯ touch type/{type.cc,boolean_type.cc,integer_type.cc,string_type.cc,timestamp_type.cc}
+</code></pre>
+<p><code>type_id.h</code>は型を列挙したものです｡<code>type.{h,cc}</code>は基底クラス､型全般に関するファイルです｡</p>
+<p>そんな感じで色々作って最低限の部分だけ書きます｡必要になったら書き足せば良いのでまあ良いでしょう｡</p>
+<p>いらないファイルを削って最終的にこんな感じになります｡</p>
+<pre><code class="language-sh">.
+├── bazel-bin -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out/darwin-fastbuild/bin
+├── bazel-out -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out
+├── bazel-simpleDB -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__
+├── bazel-testlogs -&gt; /private/var/tmp/_bazel_jio/f5658d19d2bd7d6d5e686a125c69dd0f/execroot/__main__/bazel-out/darwin-fastbuild/testlogs
+├── bin
+│  ├── BUILD.bazel
+│  └── format.sh
+├── README.md
+├── src
+│  ├── includes
+│  │  └── type
+│  │     ├── boolean_type.h
+│  │     ├── BUILD.bazel
+│  │     ├── integer_type.h
+│  │     ├── string_type.h
+│  │     ├── timestamp_type.h
+│  │     ├── type.h
+│  │     └── type_id.h
+│  └── type
+│     ├── boolean_type.cc
+│     ├── BUILD.bazel
+│     ├── integer_type.cc
+│     ├── string_type.cc
+│     ├── timestamp_type.cc
+│     └── type.cc
+├── test
+│  └── test_greet.cc
+└── WORKSPACE
+
+</code></pre>
+<p><code>test</code>ディレクトリに何も書き込んでいないので､ファイルは残しています(すぐ<code>Bazel</code>の使い方忘れるので)</p>
+<p>実際のファイルは下のような感じ｡</p>
+<h3><a class="header" href="#srcincludestypebuildbazel" id="srcincludestypebuildbazel"><code>src/includes/type/BUILD.bazel</code></a></h3>
+<pre><code class="language-starlark">load(&quot;@rules_cc//cc:defs.bzl&quot;, &quot;cc_library&quot;)
+
+cc_library(
+    name = &quot;boolean&quot;,
+    hdrs = [&quot;boolean_type.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+    deps = [&quot;//src/includes/type&quot;],
+)
+
+cc_library(
+    name = &quot;integer&quot;,
+    hdrs = [&quot;integer_type.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+    deps = [&quot;//src/includes/type&quot;],
+)
+
+cc_library(
+    name = &quot;string&quot;,
+    hdrs = [&quot;string_type.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+    deps = [&quot;//src/includes/type&quot;],
+)
+
+cc_library(
+    name = &quot;timestamp&quot;,
+    hdrs = [&quot;timestamp_type.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+    deps = [&quot;//src/includes/type&quot;],
+)
+
+cc_library(
+    name = &quot;type_id&quot;,
+    hdrs = [&quot;type_id.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+)
+
+cc_library(
+    name = &quot;type&quot;,
+    hdrs = [&quot;type.h&quot;],
+    visibility = [&quot;//src:__subpackages__&quot;],
+    deps = [&quot;//src/includes/type:type_id&quot;],
+)
+
+</code></pre>
+<h3><a class="header" href="#srcincludestypetypeh" id="srcincludestypetypeh"><code>src/includes/type/type.h</code></a></h3>
+<pre><code class="language-cpp">#include &lt;cstdint&gt;
+
+#include &quot;src/includes/type/type_id.h&quot;
+
+namespace simple_db {
+class Type {
+ public:
+  explicit Type(TypeId type_id) : type_id_(type_id) {}
+
+  virtual ~Type() = default;
+
+  inline TypeId GetTypeId() const { return type_id_; }
+
+ protected:
+  TypeId type_id_;
+  static Type *k_types[14];
+};
+}  // namespace simple_db
+</code></pre>
+<h3><a class="header" href="#srcincludestypetype_idh" id="srcincludestypetype_idh"><code>src/includes/type/type_id.h</code></a></h3>
+<pre><code class="language-cpp">namespace simple_db {
+enum TypeId { INVALID = 0, BOOLEAN, INTEGER, STRING, TIMESTAMP };
+}
+</code></pre>
+<h3><a class="header" href="#srcincludestypeboolean_typeh" id="srcincludestypeboolean_typeh"><code>src/includes/type/boolean_type.h</code></a></h3>
+<pre><code class="language-cpp">#include &quot;src/includes/type/type.h&quot;
+
+namespace simple_db {
+class BooleanType : public Type {
+ public:
+  ~BooleanType() override = default;
+  BooleanType();
+};
+}  // namespace simple_db
+</code></pre>
+<p>こんな感じにヘッダーファイルは書きました(本当に最低限)｡</p>
+<p>次にソースファイルです｡こちらも最小限に留めました｡</p>
+<h3><a class="header" href="#srctypebuildbazel" id="srctypebuildbazel"><code>src/type/BUILD.bazel</code></a></h3>
+<pre><code class="language-starlark">load(&quot;@rules_cc//cc:defs.bzl&quot;, &quot;cc_library&quot;)
+
+cc_library(
+    name = &quot;boolean&quot;,
+    srcs = [
+        &quot;boolean_type.cc&quot;,
+    ],
+    copts = [
+        &quot;-std=c++17&quot;,
+    ],
+    deps = [
+        &quot;//src/includes/type:boolean&quot;,
+    ],
+)
+
+cc_library(
+    name = &quot;integer&quot;,
+    srcs = [
+        &quot;integer_type.cc&quot;,
+    ],
+    copts = [
+        &quot;-std=c++17&quot;,
+    ],
+    deps = [
+        &quot;//src/includes/type:integer&quot;,
+    ],
+)
+
+cc_library(
+    name = &quot;string&quot;,
+    srcs = [
+        &quot;string_type.cc&quot;,
+    ],
+    copts = [
+        &quot;-std=c++17&quot;,
+    ],
+    deps = [
+        &quot;//src/includes/type:string&quot;,
+    ],
+)
+
+cc_library(
+    name = &quot;timestamp&quot;,
+    srcs = [
+        &quot;timestamp_type.cc&quot;,
+    ],
+    copts = [
+        &quot;-std=c++17&quot;,
+    ],
+    deps = [
+        &quot;//src/includes/type:timestamp&quot;,
+    ],
+)
+
+</code></pre>
+<h3><a class="header" href="#srctypetypecc" id="srctypetypecc"><code>src/type/type.cc</code></a></h3>
+<pre><code class="language-cpp">#include &quot;src/includes/type/boolean_type.h&quot;
+#include &quot;src/includes/type/integer_type.h&quot;
+#include &quot;src/includes/type/string_type.h&quot;
+#include &quot;src/includes/type/timestamp_type.h&quot;
+
+namespace simple_db {
+Type *Type::k_types[] = {
+    new Type(TypeId::INVALID), new BooleanType(),   new IntegerType(),
+    new StringType(),          new TimestampType(),
+};
+}
+</code></pre>
+<h3><a class="header" href="#srctypeboolean_typecc" id="srctypeboolean_typecc"><code>src/type/boolean_type.cc</code></a></h3>
+<pre><code class="language-cpp">#include &quot;src/includes/type/boolean_type.h&quot;
+
+namespace simple_db {
+BooleanType::BooleanType() : Type(TypeId::BOOLEAN) {}
+}  // namespace simple_db
+</code></pre>
+<p>このように基本的な型の実装をしました｡おそらく実装を進めるうちにこんなに適当ではまずくなると思いますが､それはそのときに考えることにしましょう｡</p>
+<h2><a class="header" href="#day03まとめ" id="day03まとめ">Day03まとめ</a></h2>
+<ul>
+<li>データを扱う所に型あり</li>
+<li>自作RDBMSの型を作った</li>
+<li>C++難しい...(ソースコードが読めない)</li>
+</ul>
+<h2><a class="header" href="#次回予告-1" id="次回予告-1">次回予告</a></h2>
+<ul>
+<li>MUST: RDBMSのStorageに関して説明</li>
+<li>SHOULD: Storageに関する部分を実装</li>
+</ul>
 
                     </main>
 
