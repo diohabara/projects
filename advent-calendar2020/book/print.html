@@ -614,6 +614,50 @@ BooleanType::BooleanType() : Type(TypeId::BOOLEAN) {}
 <li>SHOULD: Storageに関する部分を実装</li>
 </ul>
 <h1><a class="header" href="#day04" id="day04">Day04</a></h1>
+<p>今回はRDBMSのStorageの仕組みについて説明をしていきます｡</p>
+<h2><a class="header" href="#storage" id="storage">Storage</a></h2>
+<p>前回の繰り返しとなりますが､RDBMSはnon-volatile(ストレージ)にあるデータをvolatile(メモリ､キャッシュ)において､操作します｡</p>
+<p>non-volatileとvolatileを比較すると前者は容量は大きいですがアクセス速度は遅く､後者は容量は小さいですがアクセス速度は早いです｡また､non-volatileな記憶領域がテープ式の場合､テープ上で連続してデータが配置されている方がランダムに配置されている場合よりもアクセス速度が早いです｡そのため､これらを考慮する必要があります｡</p>
+<p>メモリ上でのデータの展開はOSがやってくれる部分もありますが､連続した領域に配置するなど細かいものはRDBMS側でやる必要があります｡</p>
+<h2><a class="header" href="#file" id="file">File</a></h2>
+<h3><a class="header" href="#page" id="page">Page</a></h3>
+<p>RDBMSではDBのfileを扱います｡その際にfileは<code>page</code>の集まりとして管理されます｡</p>
+<p><code>page</code>はデータの固定長ブロックで以下の要素を含みます｡</p>
+<ul>
+<li><code>meta-data</code></li>
+<li><code>index</code></li>
+<li><code>log record</code></li>
+</ul>
+<h3><a class="header" href="#tuple-oriented" id="tuple-oriented">Tuple-oriented</a></h3>
+<p><code>Tuple-oriented</code>という<code>Page</code>の構成について紹介します｡</p>
+<p>それぞれの<code>page</code>は一意の識別子を持ちます｡また､<code>Header</code>として様々なデータが格納され､<code>Tuple</code>(行ごとのデータ)は以下のようにオブジェクトのメモリの先頭から<code>Slot</code>と呼ばれる<code>Tuple</code>を指すポインタが格納され､メモリの末尾に<code>Tuple</code>が格納されます｡ただし､<code>Tuple</code>は固定長のデータです｡そして､<code>Tuple</code>には一意な<code>record identifier</code>が付与されています｡</p>
+<p>これによって削除､追加の際に効率的にメモリを使うことができます｡</p>
+<p><img src="./images/page_layout1.svg" alt="" /></p>
+<h3><a class="header" href="#page-manipulation" id="page-manipulation">Page manipulation</a></h3>
+<p>追加時は以下のようになります｡</p>
+<p><img src="./images/page_layout2.svg" alt="" /></p>
+<p>削除の際は以下の通り｡<code>Tuple</code>は後ろに詰められます｡</p>
+<p><img src="./images/page_layout3.svg" alt="" /></p>
+<h3><a class="header" href="#heap" id="heap">Heap</a></h3>
+<p><code>heap file</code>とは順序不同の<code>page</code>の集まりです｡<code>tuple</code>がランダムに格納されています｡そして､<code>page</code>は<code>CREATE</code>・<code>GET</code>・<code>WRITE</code>・<code>DELETE</code>がされ､全ての<code>page</code>を走査することも可能です｡</p>
+<p><code>heap</code>を表現する方法は<code>Linked List</code>と<code>Page Directory</code>の2種類があります｡</p>
+<h4><a class="header" href="#linked-list" id="linked-list">Linked List</a></h4>
+<p><code>Linked List</code>は下図のように<code>Header Page</code>・<code>Free Page List</code>・<code>Data Page List</code>の3つの要素から構成されています｡</p>
+<p><code>Header Page</code>は<code>Free Page List</code>と<code>Data Page List</code>の先頭のノードへのポインタを持ち､<code>Free Page List</code>はデータの入っていない<code>Page</code>の単方向連結リスト､<code>Data Page List</code>はデータの入っている<code>Page</code>の単方向連結リストです｡</p>
+<p><img src="./images/linked_list.svg" alt="" /></p>
+<h4><a class="header" href="#page-directory" id="page-directory">Page Directory</a></h4>
+<p>この方法は以下のように<code>Header Page</code>が連結リストになっていて､<code>Page</code>を指すという方法です｡自作RDBMSではこちらは採用しません｡</p>
+<p><img src="./images/page_directory.svg" alt="" /></p>
+<h2><a class="header" href="#今回のまとめ" id="今回のまとめ">今回のまとめ</a></h2>
+<ul>
+<li><code>Page</code>という単位でRDBMSはファイルを扱う</li>
+<li><code>Page</code>を扱うために2種類の方法があるが､自作RDBMSでは<code>Linked List</code>という方法を使う</li>
+</ul>
+<h2><a class="header" href="#次回予告-2" id="次回予告-2">次回予告</a></h2>
+<ul>
+<li>MUST: Storageの説明を終わらせる</li>
+<li>SHOULD: 実装も終わらせる</li>
+</ul>
 
                     </main>
 
