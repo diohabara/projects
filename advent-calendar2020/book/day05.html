@@ -3,10 +3,8 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title></title>
+        <title>Day05 - advent-calendar2020</title>
         
-        
-        <base href="/">
         
 
 
@@ -97,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="day01.html"><strong aria-hidden="true">1.</strong> Day01</a></li><li class="chapter-item expanded "><a href="day02.html"><strong aria-hidden="true">2.</strong> Day02</a></li><li class="chapter-item expanded "><a href="day03.html"><strong aria-hidden="true">3.</strong> Day03</a></li><li class="chapter-item expanded "><a href="day04.html"><strong aria-hidden="true">4.</strong> Day04</a></li><li class="chapter-item expanded "><a href="day05.html"><strong aria-hidden="true">5.</strong> Day05</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="day01.html"><strong aria-hidden="true">1.</strong> Day01</a></li><li class="chapter-item expanded "><a href="day02.html"><strong aria-hidden="true">2.</strong> Day02</a></li><li class="chapter-item expanded "><a href="day03.html"><strong aria-hidden="true">3.</strong> Day03</a></li><li class="chapter-item expanded "><a href="day04.html"><strong aria-hidden="true">4.</strong> Day04</a></li><li class="chapter-item expanded "><a href="day05.html" class="active"><strong aria-hidden="true">5.</strong> Day05</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -165,13 +163,53 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#document-not-found-404" id="document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1><a class="header" href="#day05" id="day05">Day05</a></h1>
+<p>前回終わらなかったStorage周りの話を再びしていこうと思います｡</p>
+<h2><a class="header" href="#log-structured-file-organization" id="log-structured-file-organization">Log-Structured FIle Organization</a></h2>
+<p>前回紹介したのは<code>slotted pages</code>という構成で､<code>Page</code>に<code>Tuple</code>を保存していました｡これに対して<code>log</code>の記録を取るという<code>log-structured file organization</code>があります｡</p>
+<p>システムが<code>log</code>の記録をファイルのどんどん付け加えていき､それを辿ることでデータの復元が出来ます｡そして､定期的に<code>log</code>を小さくする工夫をします｡</p>
+<p>今回この構成は実装しないので簡単に触れる程度にします｡</p>
+<h2><a class="header" href="#data-representation" id="data-representation">Data Representation</a></h2>
+<p>データを保持するのはRDBMSですが､例えば浮動小数点を&quot;native&quot;なC/C++の型として扱うと誤差の問題があります｡そのためこれを実装してあげる必要があります｡</p>
+<p>Day02に型の実装を(適当に)したのですが､これをそのうち改善する必要があるということです｡</p>
+<p>また､RDBMSは<code>Tuple</code>が<code>Page</code>の大きさを超えることを認めていません｡そのため､巨大なデータを扱う際は<code>Page</code>を内に<code>Tuple</code>の<code>Attribute</code>を入れる必要があります｡または､<code>BLOB</code>などのように外部ファイル内にデータを入れます｡</p>
+<p>このように保存するデータのための実装を追加する必要がありそうですね｡</p>
+<h2><a class="header" href="#system-catalogs" id="system-catalogs">System Catalogs</a></h2>
+<p>DBMSはその内部カタログにDBに関するメタ情報を持っています｡例えばテーブル､カラム､インデックス権限､内部統計情報などなど...</p>
+<p>ということで､これらを実装します｡</p>
+<h2><a class="header" href="#storage-models" id="storage-models">Storage Models</a></h2>
+<p>DBには<code>On-Line Transaction Processing(OLTP)</code>と<code>On-Line Analytical Processing(OLAP)</code>という処理方法があります｡</p>
+<p><code>OLTP</code>は小さなデータの読み書きをする高速な処理を毎回行う処理で､<code>OLAP</code>は複数のデータを計算するために大きなデータを読み込む複雑な処理です｡</p>
+<p>加えてそれらを使った<code>Hybrid Transaction + Analytical Processing(HTAP)</code>があります｡</p>
+<h3><a class="header" href="#n-ary-storage-modelnsm" id="n-ary-storage-modelnsm">N-ary Storage Model(NSM)</a></h3>
+<p>今回実装するRDBMSはこれらの処理を念頭に入れ､<code>NSM</code>というものにします｡これはある<code>Page</code>内にある<code>Tuple</code>の<code>Attribute</code>は全て連続して同<code>Page</code>内にあるというモデルです｡ </p>
+<h4><a class="header" href="#利点" id="利点">利点</a></h4>
+<p>利点は高速なファイル処理で全ての<code>Tuple</code>を必要とするようなクエリには良いです｡</p>
+<h4><a class="header" href="#欠点" id="欠点">欠点</a></h4>
+<p>欠点は<code>Table</code>の大部分を読み込むような際に非効率な点です｡</p>
+<h3><a class="header" href="#おまけdecomposition-storage-modeldsm" id="おまけdecomposition-storage-modeldsm">(おまけ)Decomposition Storage Model(DSM)</a></h3>
+<p>今回は実装しませんが､こういうモデルもあるという話です｡</p>
+<p>このモデルではDBMSは全ての<code>Tuples</code>のある<code>Attribute</code>の値全てを<code>Page</code>内に連続して格納します｡このモデルは<code>OLAP</code>に適しています｡<code>Column Store</code>とも呼ばれるようです｡利点・欠点は<code>NSM</code>の反対ですね｡</p>
+<p><code>Tuple</code>を識別するには固定長のオフセットを使う方法と<code>Tuple</code>のIDを<code>Attribute</code>に振るという方法があります｡</p>
+<h2><a class="header" href="#今日のまとめ" id="今日のまとめ">今日のまとめ</a></h2>
+<ul>
+<li>データ保存のために色々実装する必要がある</li>
+<li>RDBMSのメタ情報を取るための実装も必要</li>
+<li><code>NSM</code>を実装するRDBMSには適用する</li>
+</ul>
+<h2><a class="header" href="#次回予告" id="次回予告">次回予告</a></h2>
+<ul>
+<li>テスト前なので明日はRDBMS関係ない小話でもします</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="day04.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
                         
 
                         
@@ -182,6 +220,10 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="day04.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
                 
 
                 
