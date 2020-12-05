@@ -42,8 +42,6 @@ RDBMSではDBのfileを扱います｡その際にfileは`page`の集まりと�
 
 ![](./images/page_layout3.svg)
 
-
-
 ### Heap
 
 `heap file`とは順序不同の`page`の集まりです｡`tuple`がランダムに格納されています｡そして､`page`は`CREATE`・`GET`・`WRITE`・`DELETE`がされ､全ての`page`を走査することも可能です｡
