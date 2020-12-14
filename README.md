@@ -1,10 +1,5 @@
 # challenges
 
-## How to start a new challenge
+Here are my challenges.
 
-```sh
-mkdir new-challenge
-cd new-challenge
-mdbook init
-```
-
+- [advent calendar2020](https://diohabara.github.io/challenges/advent-calendar2020/)
