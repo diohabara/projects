@@ -2,11 +2,21 @@
 
 Here are my challenges.
 
-## WIP
-
 ## Finished
 
-## Unfinished(maybe forever)
+- [SLPL](https://github.com/diohabara/SLPL)
+- [dCPU](https://github.com/diohabara/dCPU)
+
+## Work in progress
+
+- [dcc](https://github.com/diohabara/dcc)
+- [dioDB](https://github.com/diohabara/dioDB)
+- [tigerbook](https://github.com/diohabara/tigerbook)
+- [ods](https://github.com/diohabara/ods)
+- [pcbook](https://github.com/diohabara/pcbook)
+- [risc-v](https://github.com/diohabara/risc-v)
+
+## Canceled
 
 - [advent calendar2020](https://diohabara.github.io/challenges/advent-calendar2020/)
 
