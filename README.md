@@ -15,6 +15,7 @@ Here are my challenges.
 - [ods](https://github.com/diohabara/ods)
 - [pcbook](https://github.com/diohabara/pcbook)
 - [risc-v](https://github.com/diohabara/risc-v)
+- [open_inshi](https://github.com/diohabara/open_inshi)
 
 ## Canceled
 
