@@ -5,8 +5,11 @@ Here are my challenges.
 ## Finished
 
 - [SLPL](https://github.com/diohabara/SLPL)
+    - Rust, Programming Language
 - [dCPU](https://github.com/diohabara/dCPU)
+    - Verilog, CPU
 - [todo-cli](https://github.com/diohabara/todo-cli)
+    - Python, TODO List CLI tool
 
 ## Work in progress
 
