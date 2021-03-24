@@ -6,6 +6,7 @@ Here are my challenges.
 
 - [SLPL](https://github.com/diohabara/SLPL)
 - [dCPU](https://github.com/diohabara/dCPU)
+- [todo-cli](https://github.com/diohabara/todo-cli)
 
 ## Work in progress
 
