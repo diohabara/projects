@@ -13,14 +13,7 @@ Here are my challenges.
 
 ## Work in progress
 
-- [dcc](https://github.com/diohabara/dcc)
-- [dpp](https://github.com/diohabara/dpp)
-- [dioDB](https://github.com/diohabara/dioDB)
-- [tigerbook](https://github.com/diohabara/tigerbook)
-- [ods](https://github.com/diohabara/ods)
-- [pcbook](https://github.com/diohabara/pcbook)
-- [risc-v](https://github.com/diohabara/risc-v)
-- [open_inshi](https://github.com/diohabara/open_inshi)
+<https://github.com/diohabara?tab=repositories&q=WIP&type=&language=&sort=>
 
 ## Canceled
 
