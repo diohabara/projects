@@ -15,7 +15,7 @@ Here are my challenges.
 
 ## Work in progress
 
-[WIP repos](https://github.com/diohabara?tab=repositories&q=WIP&type=&language=&sort=)
+[WIP repos](https://github.com/diohabara?tab=repositories&q=topic%3Awip&type=&language=&sort=)
 
 ## Canceled
 
