@@ -10,6 +10,8 @@ Here are my challenges.
     - Verilog, CPU
 - [todo-cli](https://github.com/diohabara/todo-cli)
     - Python, TODO List CLI tool
+- [内定辞退ジェネレーター](https://github.com/diohabara/naitei_jitai)
+-   - TypeScript, React, a tools to decline an offer
 
 ## Work in progress
 
