@@ -11,7 +11,7 @@ Here are my challenges.
 - [todo-cli](https://github.com/diohabara/todo-cli)
     - Python, TODO List CLI tool
 - [内定辞退ジェネレーター](https://github.com/diohabara/naitei_jitai)
--   - TypeScript, React, a tools to decline an offer
+-   - TypeScript, React, a tool to decline an offer
 
 ## Work in progress
 
