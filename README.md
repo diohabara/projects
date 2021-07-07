@@ -1,6 +1,6 @@
-# challenges
+# projects
 
-Here are my challenges.
+Here are my projects.
 
 ## Finished
 
