@@ -2,7 +2,7 @@
 
 ## Finished
 
-| Project | URL | Used technologies | Description |
+| Project | URL | Technologies | Description |
 | - | - | - | - |
 | SLPL | <https://github.com/diohabara/SLPL> | Rust | a simple programming language |
 | dCPU | <https://github.com/diohabara/dCPU> | Verilog | a simple CPU |
