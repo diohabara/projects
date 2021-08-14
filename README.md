@@ -11,7 +11,7 @@
 
 ## Work in progress
 
-- [WIP repos](https://github.com/diohabara?tab=repositories&q=topic%3Awip&type=&language=&sort=)
+- [WIP repositories](https://github.com/diohabara?tab=repositories&q=topic%3Awip&type=&language=&sort=)
 - [ideas (that may or may not be implemented)](https://github.com/diohabara/projects/issues/1)
 
 ## Canceled
