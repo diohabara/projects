@@ -8,6 +8,7 @@
 | dCPU | <https://github.com/diohabara/dCPU> | Verilog | a simple CPU |
 | todo-cli | <https://github.com/diohabara/todo-cli> | Python | a simple CLI TODO app |
 | 内定辞退ジェネレーター | <https://github.com/diohabara/naitei_jitai> | TypeScript, React | a tool to decline offers |
+| sat-solver101 | <https://github.com/diohabara/sat-solver101> | Python | a toy sat solver |
 
 ## Work in progress
 
