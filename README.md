@@ -1,5 +1,11 @@
 # projects
 
+## OSS
+
+| Project | URL | Technologies | Description |
+| - | - | - | - |
+| GCC Rust | <https://github.com/Rust-GCC/gccrs> | C++, Rust | a full alternative implementation of the Rust language ontop of GCC |
+
 ## Finished
 
 | Project | URL | Technologies | Description |
