@@ -15,6 +15,7 @@
 | todo-cli | <https://github.com/diohabara/todo-cli> | Python | a simple CLI TODO app |
 | 内定辞退ジェネレーター | <https://github.com/diohabara/naitei_jitai> | TypeScript, React | a tool to decline offers |
 | sat-solver101 | <https://github.com/diohabara/sat-solver101> | Python | a toy sat solver |
+| MuscleFuck | <https://github.com/diohabara/muscle_fuck> | Python | A system with which to exercise and programme |
 
 ## Work in progress
 
